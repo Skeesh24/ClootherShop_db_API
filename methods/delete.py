@@ -9,3 +9,10 @@ def delete_single(table: Table, db: Session, item_id: int) -> bool:
         return True
     except:
         return False
+
+
+def delete_many(table: Table, db: Session, item_ids: list) -> bool:
+    res = False
+    for id in item_ids:
+        res = delete_single(table, db, id)
+    return res
