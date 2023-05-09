@@ -4,11 +4,8 @@ from fastapi.responses import JSONResponse
 from services.repository import ItemRepository
 from classes.items import ItemRequest, items, Item, ItemResponse
 from utils.database import get_db
-# from methods.select import select_all, select_where
-# from methods.insert import insert_single
-# from methods.update import update_single
-# from methods.delete import delete_single
 from methods.responses import details
+from methods.mapping import keyvalue_map
 
 
 app = FastAPI()
@@ -24,10 +21,10 @@ def item_by_id(item_id: int, db: Session = Depends(get_db)):
     # need a codes: 400, 401, 403
     rep = ItemRepository(items, db)
 
-    res = rep.select_where(items.c['id'] == item_id).first()
+    res = rep.select(items.c['id'] == item_id).first()
 
     if res is not None:
-        return JSONResponse(dict(zip(list(Item.__dict__)[2:], res)), status_code=200)
+        return JSONResponse(keyvalue_map(Item, res), status_code=200)
     else:
         return JSONResponse(details("an elem was not found"), status_code=404)
 
@@ -36,9 +33,8 @@ def item_by_id(item_id: int, db: Session = Depends(get_db)):
 def items_all(db: Session = Depends(get_db)):
     rep = ItemRepository(items, db)
 
-    res = rep.select_all()
-    response = [x for x in [
-        dict(zip(list(Item.__dict__.keys())[2:], x)) for x in res]]
+    res = rep.select(None)
+    response = [keyvalue_map(Item, x) for x in res]
 
     if res is not None:
         return JSONResponse(response, status_code=200)

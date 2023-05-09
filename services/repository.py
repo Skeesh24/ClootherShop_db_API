@@ -7,14 +7,13 @@ class ItemRepository:
         self.table = table
         self.db = db
 
-    def select_where(self, predicate):
-        query = self.table.select().where(predicate)
+    def select(self, predicate):
+        query = self.table.select()
+        if predicate is not None:
+            query = query.where(predicate)
+
         res = self.db.execute(query)
         return res
-
-    def select_all(self):
-        query = self.table.select()
-        return self.db.execute(query).all()
 
     def insert_single(self, entity_dict: dict) -> bool:
         try:
