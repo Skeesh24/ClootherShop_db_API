@@ -6,4 +6,4 @@ RUN python3 -m pip install --no-cache --upgrade sqlalchemy
 
 COPY . .
 
-CMD [ "uvicorn", "api.main:app", "--host=0.0.0.0", "--port=80", "--reload" ]
+CMD [ "uvicorn", "main:app", "--host=0.0.0.0", "--port=80", "--reload" ]
