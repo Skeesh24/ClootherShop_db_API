@@ -54,7 +54,7 @@ def insert_item(item: ItemRequest, db: Session = Depends(get_db)):
 
         db.commit()
 
-        index = len(rep.select_all())+1
+        index = len(rep.select(None).fetchall())+1
         dict_response = ItemResponse(id=index, **new_dic).__dict__
 
         return JSONResponse(dict_response, status_code=201)
@@ -66,7 +66,7 @@ def insert_item(item: ItemRequest, db: Session = Depends(get_db)):
 def update_item(item_id: int, item: ItemRequest, db: Session = Depends(get_db)):
     rep = ItemRepository(items, db)
 
-    old_item = rep.select_where(items.c['id'] == item_id).first()
+    old_item = rep.select(items.c['id'] == item_id).first()
     if old_item is None:
         return JSONResponse(details("not found"), status_code=404)
 
@@ -85,7 +85,7 @@ def update_item(item_id: int, item: ItemRequest, db: Session = Depends(get_db)):
 def delete_item(item_id, db: Session = Depends(get_db)):
     rep = ItemRepository(items, db)
 
-    old_item = rep.select_where(items.c['id'] == item_id).first()
+    old_item = rep.select(items.c['id'] == item_id).first()
     if old_item is None:
         return JSONResponse(details("not found"), status_code=404)
 
