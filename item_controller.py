@@ -15,12 +15,13 @@ app = FastAPI()
 
 @app.get("/")
 def root():
+    toDesktop("shalom, nigaz")
     return details("Hello, world!")
 
 
 @app.get("/items/{item_id}")
 def item_by_id(item_id: int, db: Session = Depends(get_db)):
-    # need a codes: 400, 401, 403
+    # need codes: 400, 401, 403
     rep = ItemRepository(items, db)
 
     res = rep.select(items.c['id'] == item_id).first()
@@ -47,12 +48,14 @@ def items_all(db: Session = Depends(get_db)):
 @app.post("/items")
 def insert_item(item: ItemRequest, db: Session = Depends(get_db)):
     try:
-        new_dic = keyvalue_map(ItemRequest.__fields__, item.__dict__.values())
         rep = ItemRepository(items, db)
 
-        index = db.execute(func.get_index()).one()[0]
+        new_dic = keyvalue_map(ItemRequest.__fields__, item.__dict__.values())
+
+        index = rep.execute_function(func.get_index)[0][0]
 
         dict_response = ItemResponse(id=index, **new_dic).__dict__
+
         rep.insert_single(dict_response)
         db.commit()
         return JSONResponse(dict_response, status_code=201)

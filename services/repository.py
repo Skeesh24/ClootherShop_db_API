@@ -1,4 +1,4 @@
-from sqlalchemy import Table
+from sqlalchemy import Table, func
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 
@@ -64,5 +64,5 @@ class ItemRepository:
     def execute_raw(self, sql: str):
         return self.db.execute(text(sql))
 
-    def commit(self):
-        self.db.commit()
+    def execute_function(self, func_name):
+        return self.db.execute(func_name()).fetchall()
