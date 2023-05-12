@@ -6,10 +6,10 @@ from utils.database import base, metadata
 items = Table(
     "Items",
     metadata,
-    Column("id", Integer, Identity(start=1, cycle=True), primary_key=True),
+    Column("id", Integer, primary_key=True),
     Column("name", String(50)),
     Column("price", Float),
-    Column("is_offer", Boolean),
+    Column("isOffer", Boolean),
 )
 
 
@@ -18,17 +18,20 @@ class Item(base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(50), nullable=False)
     price = Column(Float, nullable=False)
-    is_offer = Column(Boolean, nullable=False)
+    isOffer = Column(Boolean, nullable=False)
+
+    def __repr__(self):
+        return f'{self.id}, {self.name}, {self.price}, {self.isOffer}'
 
 
 class ItemResponse(pydantic.BaseModel):
     id: int
     name: str
     price: float
-    is_offer: bool
+    isOffer: bool
 
 
 class ItemRequest(pydantic.BaseModel):
     name: str
     price: float
-    is_offer: bool
+    isOffer: bool

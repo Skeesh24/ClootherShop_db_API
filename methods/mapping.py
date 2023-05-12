@@ -1,3 +1,6 @@
-def keyvalue_map(key_type: type, values_list: list) -> dict:
-    key_dict = key_type.__dict__.keys()
-    return dict(zip(list(key_dict)[2:], list(values_list)))
+from methods.logging import toDesktop
+
+
+def keyvalue_map(keys: list, values_list: list) -> dict:
+    key_dict = list(filter(lambda x: not "_" in x, keys))
+    return dict(zip(key_dict, values_list))

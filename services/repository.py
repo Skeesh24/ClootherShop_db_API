@@ -1,5 +1,6 @@
 from sqlalchemy import Table
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import text
 
 
 class ItemRepository:
@@ -59,3 +60,9 @@ class ItemRepository:
         for id in item_ids:
             res = self.delete_single(id)
         return res
+
+    def execute_raw(self, sql: str):
+        return self.db.execute(text(sql))
+
+    def commit(self):
+        self.db.commit()

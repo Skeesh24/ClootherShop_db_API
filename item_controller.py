@@ -6,6 +6,8 @@ from classes.items import ItemRequest, items, Item, ItemResponse
 from utils.database import get_db
 from methods.responses import details
 from methods.mapping import keyvalue_map
+from methods.logging import toDesktop
+from sqlalchemy import func
 
 
 app = FastAPI()
@@ -13,7 +15,7 @@ app = FastAPI()
 
 @app.get("/")
 def root():
-    return {"hello": "world"}
+    return details("Hello, world!")
 
 
 @app.get("/items/{item_id}")
@@ -24,7 +26,7 @@ def item_by_id(item_id: int, db: Session = Depends(get_db)):
     res = rep.select(items.c['id'] == item_id).first()
 
     if res is not None:
-        return JSONResponse(keyvalue_map(Item, res), status_code=200)
+        return JSONResponse(keyvalue_map(Item.__dict__.keys(), res), status_code=200)
     else:
         return JSONResponse(details("an elem was not found"), status_code=404)
 
@@ -34,7 +36,7 @@ def items_all(db: Session = Depends(get_db)):
     rep = ItemRepository(items, db)
 
     res = rep.select(None)
-    response = [keyvalue_map(Item, x) for x in res]
+    response = [keyvalue_map(Item.__dict__.keys(), x) for x in res]
 
     if res is not None:
         return JSONResponse(response, status_code=200)
@@ -45,18 +47,14 @@ def items_all(db: Session = Depends(get_db)):
 @app.post("/items")
 def insert_item(item: ItemRequest, db: Session = Depends(get_db)):
     try:
-        new_item = Item(**dict(item))
-        new_dic = dict(zip(list(new_item.__dict__.keys())[
-                       1:], list(new_item.__dict__.values())[1:]))
+        new_dic = keyvalue_map(ItemRequest.__fields__, item.__dict__.values())
         rep = ItemRepository(items, db)
 
-        rep.insert_single(new_dic)
+        index = db.execute(func.get_index()).one()[0]
 
-        db.commit()
-
-        index = len(rep.select(None).fetchall())+1
         dict_response = ItemResponse(id=index, **new_dic).__dict__
-
+        rep.insert_single(dict_response)
+        db.commit()
         return JSONResponse(dict_response, status_code=201)
     except Exception as e:  # terminate an except msg before posting
         return JSONResponse(details(f"have a nice day! {e}"), status_code=500)
